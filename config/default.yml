@@ -1,0 +1,16 @@
+app:
+  host: localhost
+  port: 4000
+  proxy:
+    # 若 HTTP Proxy Headers 可信，则可设置 `proxy` 为 `true`。
+    false
+  secret: null
+  session:
+    key: moment
+
+postgresql:
+  host: localhost
+  port: 5432
+  username: rosacourse
+  password: pa$$w0rd
+  database: rosacourse
