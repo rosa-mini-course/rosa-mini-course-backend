@@ -7,6 +7,7 @@ import { ApolloError } from "apollo-server";
 
 import { UserRepository } from "../repository/UserRepository";
 import { UserService } from "../service/UserService";
+import { isEmail } from "class-validator";
 
 
 @Service()
@@ -32,6 +33,9 @@ export class UserResolver implements ResolverInterface<User> {
     async existEmail(
         @Arg("email") email: string
     ): Promise<boolean> {
+        if (!isEmail(email)) {
+            throw new ApolloError("非法邮箱地址");
+        }
         return (await this.userRepository.findByEmail(email)) !== undefined;
     }
 

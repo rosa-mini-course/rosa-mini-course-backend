@@ -5,6 +5,7 @@ import { User } from '../entity/User'
 import  argon2, { argon2id } from "argon2";
 import { isEmail } from "class-validator";
 import { ApolloError } from "apollo-server";
+import { STUDENT } from "../const";
 
 
 @Service()
@@ -22,7 +23,8 @@ export class UserService {
         });
         const user = await this.userRepository.save(await this.userRepository.create({
             useremail: email,
-            passwordHash
+            passwordHash,
+            role: STUDENT
         }));
         return user;
     }

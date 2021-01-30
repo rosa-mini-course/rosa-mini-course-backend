@@ -14,3 +14,8 @@ postgresql:
   username: rosacourse
   password: pa$$w0rd
   database: rosacourse
+
+redis:
+  host: localhost
+  port: 6379
+  password: null

@@ -1,6 +1,8 @@
 import { IsNotEmpty, Length, IsEmail } from "class-validator";
 import { Field, ID, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
+import { STUDENT } from "../const";
+import { Course } from "./Course";
 
 @ObjectType()
 @Entity()
@@ -20,7 +22,7 @@ export class User {
     passwordHash!: string;
 
     @Field()
-    @Column()
+    @Column({ default: STUDENT })
     @IsNotEmpty()
     role!: string;
 
