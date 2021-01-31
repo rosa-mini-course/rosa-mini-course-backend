@@ -1,4 +1,4 @@
-import { Inject, Service } from "typedi";
+import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Course } from "../entity/Course";
 import { CourseRepository } from "../repository/CourseRepository";
