@@ -1,3 +1,3 @@
-export const STUDENT: string = "student";
-export const TEACHER: string = "teacher";
-export const ADMIN: string = "admin";
+export const STUDENT = "student";
+export const TEACHER = "teacher";
+export const ADMIN = "admin";

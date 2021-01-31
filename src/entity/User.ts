@@ -1,6 +1,6 @@
 import { IsNotEmpty, Length, IsEmail } from "class-validator";
 import { Field, ID, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 import { STUDENT } from "../const";
 import { Course } from "./Course";
 
@@ -15,6 +15,7 @@ export class User {
     @Field()
     @Column()
     @IsEmail()
+    @IsNotEmpty()
     useremail!: string;
 
     @Column()
@@ -25,6 +26,14 @@ export class User {
     @Column({ default: STUDENT })
     @IsNotEmpty()
     role!: string;
+
+    @Field(() => [Course])
+    @OneToMany(() => Course, course => course.lecturer)
+    teachingCourse?: Course[];
+
+    @Field(() => [Course])
+    @ManyToMany(() => Course, course => course.subscribers)
+    subscribedCourses?: Course[];
 
     @Field(() => Date)
     @CreateDateColumn()

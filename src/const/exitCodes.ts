@@ -1,3 +1,3 @@
 export enum exitCodes {
-    redisPingError = 1
+    redisPingError = 6379
 };

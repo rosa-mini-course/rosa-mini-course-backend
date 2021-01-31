@@ -3,6 +3,7 @@ import { EntityManager, EntityRepository, Repository } from "typeorm";
 import { InjectManager } from "typeorm-typedi-extensions";
 import { User } from "../entity";
 import { isEmail } from "class-validator"
+import { Course } from "../entity/Course";
 
 @Service()
 @EntityRepository(User)
@@ -19,5 +20,13 @@ export class UserRepository extends Repository<User> {
             return undefined;
         }
         return this.findOne({ useremail: email });
+    }
+
+    async loadTeachingCourses(user: User): Promise<Course[] | undefined> {
+        return user.teachingCourse;
+    }
+
+    async loadSubscribedCourses(user: User): Promise<Course[] | undefined> {
+        return user.subscribedCourses;
     }
 }

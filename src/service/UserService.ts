@@ -11,7 +11,7 @@ import { STUDENT } from "../const";
 @Service()
 export class UserService {
     @InjectRepository()
-    private readonly userRepository!: UserRepository
+    private readonly userRepository!: UserRepository;
 
     async registerUser(email: string, password: string): Promise<User | undefined> {
         if (!isEmail(email)) throw new ApolloError("邮箱地址非法");
