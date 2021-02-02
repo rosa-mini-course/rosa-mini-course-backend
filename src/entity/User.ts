@@ -3,6 +3,7 @@ import { Field, ID, ObjectType } from "type-graphql";
 import { Column, CreateDateColumn, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 import { STUDENT } from "../const";
 import { Course } from "./Course";
+import { Video } from "./Video";
 
 @ObjectType()
 @Entity()
@@ -29,7 +30,11 @@ export class User {
 
     @Field(() => [Course])
     @OneToMany(() => Course, course => course.lecturer)
-    teachingCourse?: Course[];
+    teachingCourses?: Course[];
+
+    @Field(() => [Video])
+    @OneToMany(() => Video, video => video.uploader)
+    uploadedVideos?: Video[];
 
     @Field(() => [Course])
     @ManyToMany(() => Course, course => course.subscribers)

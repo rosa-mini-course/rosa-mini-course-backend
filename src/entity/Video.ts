@@ -2,6 +2,7 @@ import { IsDataURI } from "class-validator";
 import { Field, ID, ObjectType } from "type-graphql";
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 import { Course } from "./Course";
+import { User } from "./User";
 
 @ObjectType()
 @Entity()
@@ -19,9 +20,13 @@ export class Video {
     @Column({ default: ""})
     info?: string;
 
+    @Field(() => User)
+    @ManyToOne(() => User, user => user.uploadedVideos)
+    uploader!: User;
+
     @Field(() => Course)
     @ManyToOne(() => Course, course => course.videos)
-    course!: Course;
+    belongToCourse!: Course;
 
     @Field()
     @Column()

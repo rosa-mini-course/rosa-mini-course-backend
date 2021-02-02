@@ -2,7 +2,7 @@ import { Authorized ,Mutation ,Arg, ConflictingDefaultWithNullableError, Ctx, Fi
 import { Inject, Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { AppContext, AppUserContext } from "../context";
-import { User } from "../entity";
+import { Course, User, Video } from "../entity";
 import { ApolloError } from "apollo-server";
 
 import { UserRepository } from "../repository/UserRepository";
@@ -19,9 +19,28 @@ export class UserResolver implements ResolverInterface<User> {
     @Inject()
     private readonly userService!: UserService;
 
-    @Query(() => Number)
-    async userId(@Root() user: User): Promise<number> {
-        return user.userId
+    @FieldResolver(() => [Course])
+    async teachingCourses(@Root() user: User): Promise<Course[]> {
+        if (!user.teachingCourses) {
+            user.teachingCourses = await this.userRepository.loadTeachingCourses(user);
+        }
+        return user.teachingCourses;
+    }
+
+    @FieldResolver(() => [Course])
+    async subsribedCourses(@Root() user: User): Promise<Course[]> {
+        if (!user.subscribedCourses) {
+            user.subscribedCourses = await this.userRepository.loadSubscribedCourses(user);
+        }
+        return user.subscribedCourses;
+    }
+
+    @FieldResolver(() => [Video])
+    async uploadedVideos(@Root() user: User): Promise<Video[]> {
+        if (!user.uploadedVideos) {
+            user.uploadedVideos = await this.userRepository.loadUploadedVideos(user)
+        }
+        return user.uploadedVideos;
     }
 
     @Query(() => User, { nullable: true})

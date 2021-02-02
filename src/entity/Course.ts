@@ -22,7 +22,7 @@ export class Course {
     info!: string;
 
     @Field(() => User)
-    @ManyToOne(() => User, user => user.teachingCourse)
+    @ManyToOne(() => User, user => user.teachingCourses)
     lecturer!: User;
 
     @Field(() => [User])
@@ -30,7 +30,7 @@ export class Course {
     subscribers?: User[];
 
     @Field(() => [Video])
-    @OneToMany(() => Video, video => video.course)
+    @OneToMany(() => Video, video => video.belongToCourse)
     videos?: Video[];
 
     @Field(() => Date)
