@@ -67,7 +67,11 @@ export class UserResolver implements ResolverInterface<User> {
     }
   
     @Mutation(() => User, { nullable: true })
-    async signIn(@Arg("email") useremail: string, @Arg("password") password: string, @Ctx() ctx: AppContext): Promise<User | null> {
+    async signIn(
+        @Arg("email") useremail: string, 
+        @Arg("password") password: string, 
+        @Ctx() ctx: AppContext
+    ): Promise<User | null> {
         const user = await this.userRepository.findOneOrFail({ useremail });
     
         if (!(await this.userService.matchPassword(user, password))) {
