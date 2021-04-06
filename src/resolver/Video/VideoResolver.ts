@@ -1,10 +1,10 @@
 import { Resolver, FieldResolver, Query, ResolverInterface, Root } from "type-graphql";
 import { Inject, Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
-import { Course, Video } from "../entity";
-import { VideoRepository } from "../repository";
-import { VideoService } from "../service";
-import { User } from "../entity/User";
+import { Course, Video } from "../../entity";
+import { VideoRepository } from "../../repository";
+import { VideoService } from "../../service";
+import { User } from "../../entity/User";
 
 @Service()
 @Resolver(() => Video)

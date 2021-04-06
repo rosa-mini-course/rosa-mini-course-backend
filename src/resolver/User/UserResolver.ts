@@ -1,12 +1,12 @@
 import { Authorized ,Mutation ,Arg, ConflictingDefaultWithNullableError, Ctx, FieldResolver, Query, Resolver, ResolverInterface, Root, Args } from "type-graphql";
 import { Inject, Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
-import { AppContext, AppUserContext } from "../context";
-import { Course, User, Video } from "../entity";
+import { AppContext, AppUserContext } from "../../context";
+import { Course, User, Video } from "../../entity";
 import { ApolloError } from "apollo-server";
 
-import { UserRepository } from "../repository/UserRepository";
-import { UserService } from "../service/UserService";
+import { UserRepository } from "../../repository/UserRepository";
+import { UserService } from "../../service/UserService";
 import { isEmail } from "class-validator";
 
 
