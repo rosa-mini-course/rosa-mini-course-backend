@@ -5,10 +5,10 @@ import { Course, Video } from "../../entity";
 import { CourseRepository } from "../../repository";
 import { UserService } from "../../service";
 import { User } from "../../entity"
-import { AddCourseInput } from "../../type/course/AddCourseInput";
 import { AppUserContext } from "../../context";
-import { UpdateCourseInput } from "../../type/course/UpdateCourseInput";
 import { ContextCourseAccessible, LoadCourseIntoContext } from "./CourseGuard";
+import { AddCourseInput } from "../../type/Course/AddCourseInput";
+import { UpdateCourseInput } from "../../type/Course/UpdateCourseInput";
 
 
 @Service()
