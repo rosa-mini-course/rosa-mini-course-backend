@@ -1,4 +1,4 @@
-import { Resolver, FieldResolver, Query, ResolverInterface, Root, Authorized, UseMiddleware, Mutation, Ctx, Arg } from "type-graphql";
+import { Resolver, FieldResolver, Query, ResolverInterface, Root, Authorized, UseMiddleware, Mutation, Ctx, Arg, ID } from "type-graphql";
 import { Inject, Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Course, Video } from "../../entity";
@@ -6,12 +6,13 @@ import { VideoRepository } from "../../repository";
 import { VideoService } from "../../service";
 import { User } from "../../entity/User";
 import { ContextCourseAccessible, LoadCourseIntoContext } from "../Course";
-import { AppUserContext } from "../../context";
+import { AppContext, AppUserContext } from "../../context";
 import { GraphQLUpload } from "graphql-upload";
 import { createWriteStream } from "fs";
 import { UploadVideoInterface } from "../../type";
 import { ApolloError } from "apollo-server-errors";
 import { UploadVideoInput } from "../../type/Video/UploadVideoInput";
+import { ContextVideoAccessible, LoadVideoIntoContext } from "./VideoGuard";
 
 @Service()
 @Resolver(() => Video)
@@ -63,5 +64,18 @@ export class VideoResolver implements ResolverInterface<Video> {
         const course = ctx.state.course as Course;
         const video = this.videoRepository.create({ uploader: user, belongToCourse: course, location: locationToSave, ...data})
         return await this.videoRepository.save(video);
+    }
+
+    @Authorized()
+    @UseMiddleware(
+        LoadVideoIntoContext({ argKey: "videoId", ctxKey: "video"}),
+        ContextVideoAccessible({ ctxKey: "video" })
+    )
+    @Mutation(() => ID, { nullable: true })
+    async removeVideo(@Ctx() ctx: AppUserContext, @Arg("videoId", () => ID) _videoId: string): Promise<string> {
+        const video = ctx.state.video as Video;
+        const videoId = video.videoId;
+        await this.videoRepository.remove(video);
+        return videoId;
     }
 }
