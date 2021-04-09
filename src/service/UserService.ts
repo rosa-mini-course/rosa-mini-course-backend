@@ -5,7 +5,8 @@ import { User } from '../entity/User'
 import  argon2, { argon2id } from "argon2";
 import { isEmail } from "class-validator";
 import { ApolloError } from "apollo-server";
-import { STUDENT } from "../const";
+import { STUDENT, TEACHER, ADMIN } from "../const";
+import { INVITATION_CODE } from "../const/invitationCode";
 
 
 @Service()
@@ -13,7 +14,13 @@ export class UserService {
     @InjectRepository()
     private readonly userRepository!: UserRepository;
 
-    async registerUser(email: string, password: string): Promise<User | undefined> {
+    async registerUser(email: string, password: string, role: string, invitationCode: string): Promise<User | undefined> {
+        if ((role !== STUDENT) && (invitationCode !== INVITATION_CODE)) {
+            throw new ApolloError("邀请码错误。");
+        }
+        if (role !== STUDENT && role !== TEACHER && role !== ADMIN) {
+            throw new ApolloError("角色有误");
+        }
         if (!isEmail(email)) throw new ApolloError("邮箱地址非法");
         if ((await this.userRepository.findByEmail(email)) !== undefined) throw new ApolloError("该邮箱已被注册");
         const passwordHash = await argon2.hash(password, {
@@ -24,7 +31,7 @@ export class UserService {
         const user = await this.userRepository.save(await this.userRepository.create({
             useremail: email,
             passwordHash,
-            role: STUDENT
+            role,
         }));
         return user;
     }

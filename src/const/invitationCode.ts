@@ -1,0 +1,1 @@
+export const INVITATION_CODE: string = "5201314";

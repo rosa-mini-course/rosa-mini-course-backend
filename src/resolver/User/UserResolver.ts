@@ -61,9 +61,11 @@ export class UserResolver implements ResolverInterface<User> {
     @Mutation(() => User)
     async signUp(
         @Arg("email") email: string,
-        @Arg("password") password: string
+        @Arg("password") password: string,
+        @Arg("role") role: string,
+        @Arg("invitationCode") invitationCode: string
     ): Promise<User | undefined> {
-        return this.userService.registerUser(email, password);
+        return this.userService.registerUser(email, password, role, invitationCode);
     }
   
     @Mutation(() => User, { nullable: true })
