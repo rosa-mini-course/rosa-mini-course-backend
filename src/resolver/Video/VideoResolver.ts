@@ -62,6 +62,6 @@ export class VideoResolver implements ResolverInterface<Video> {
         const user = ctx.getSessionUser();
         const course = ctx.state.course as Course;
         const video = this.videoRepository.create({ uploader: user, belongToCourse: course, location: locationToSave, ...data})
-        return this.videoRepository.save(video);
+        return await this.videoRepository.save(video);
     }
 }
