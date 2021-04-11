@@ -1,4 +1,4 @@
-import { Arg, Authorized, Ctx, FieldResolver, ID, Mutation, Resolver, ResolverInterface, Root, UseMiddleware } from "type-graphql";
+import { Arg, Authorized, Ctx, FieldResolver, ID, Mutation, Query, Resolver, ResolverInterface, Root, UseMiddleware } from "type-graphql";
 import { Inject, Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Course, Video } from "../../entity";
@@ -9,11 +9,13 @@ import { AppUserContext } from "../../context";
 import { ContextCourseAccessible, LoadCourseIntoContext } from "./CourseGuard";
 import { AddCourseInput } from "../../type/Course/AddCourseInput";
 import { UpdateCourseInput } from "../../type/Course/UpdateCourseInput";
+import {getConnection} from "typeorm";
 
 
 @Service()
 @Resolver(() => Course)
 export class CourseResolver implements ResolverInterface<Course> {
+
         @InjectRepository()
         private readonly courseRepository!: CourseRepository;
 
@@ -25,6 +27,13 @@ export class CourseResolver implements ResolverInterface<Course> {
         @FieldResolver(() => [Video])
         async videos(@Root() course: Course): Promise<Video[]> {
             return this.courseRepository.loadVideos(course);
+        }
+
+        @Query(() => [Course])
+        async discoveryCourses(): Promise<Course[]> {
+            const sql_sentence: string = "select \"courseId\", \"coursename\", \"info\" from public.\"course\"";
+            const courses: Promise<Course[]> = getConnection().getCustomRepository(CourseRepository).createQueryBuilder("Course").getMany();
+            return courses;
         }
 
         @Authorized()
