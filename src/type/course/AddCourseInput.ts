@@ -5,4 +5,7 @@ import { Course } from "../../entity";
 export class AddCourseInput implements Partial<Course> {
     @Field()
     coursename!: string;
+
+    @Field()
+    info!: string;
 }

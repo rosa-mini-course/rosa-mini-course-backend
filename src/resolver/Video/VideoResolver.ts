@@ -13,6 +13,7 @@ import { UploadVideoInterface } from "../../type";
 import { ApolloError } from "apollo-server-errors";
 import { UploadVideoInput } from "../../type/Video/UploadVideoInput";
 import { ContextVideoAccessible, LoadVideoIntoContext } from "./VideoGuard";
+import { getCustomRepository } from "typeorm";
 
 @Service()
 @Resolver(() => Video)
@@ -65,6 +66,26 @@ export class VideoResolver implements ResolverInterface<Video> {
         const video = this.videoRepository.create({ uploader: user, belongToCourse: course, location: locationToSave, ...data})
         return await this.videoRepository.save(video);
     }
+
+    // TODO 播放视频
+    @Authorized()
+    @UseMiddleware(
+        LoadVideoIntoContext({ argKey: "videoId", ctxKey: "video"}),
+        ContextVideoAccessible({ ctxKey: "video" })
+    )
+    @Mutation(() => Video)
+    async displayVideo(
+        @Ctx() ctx: AppUserContext,
+        @Arg("videoId") videoId: string
+    ) {
+        if (getCustomRepository(VideoRepository).findById(videoId) === undefined) {
+            throw new ApolloError("视频ID有误");
+        }
+        const video: Video = getCustomRepository(VideoRepository).findById(videoId) as unknown as Video;
+        const url = video.location;
+    }
+
+
 
     @Authorized()
     @UseMiddleware(
