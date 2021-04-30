@@ -1,6 +1,6 @@
 import { IsNotEmpty, Length, IsEmail } from "class-validator";
 import { Field, ID, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 import { STUDENT } from "../const";
 import { Course } from "./Course";
 import { Video } from "./Video";
@@ -38,6 +38,7 @@ export class User {
 
     @Field(() => [Course])
     @ManyToMany(() => Course, course => course.subscribers)
+    @JoinTable()
     subscribedCourses?: Course[];
 
     @Field(() => Date)
