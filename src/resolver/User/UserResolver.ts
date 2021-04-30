@@ -28,10 +28,10 @@ export class UserResolver implements ResolverInterface<User> {
     }
 
     @FieldResolver(() => [Course])
-    async subsribedCourses(@Root() user: User): Promise<Course[]> {
+    async subscribedCourses(@Root() user: User): Promise<Course[]> {
         if (!user.subscribedCourses) {
             user.subscribedCourses = await this.userRepository.loadSubscribedCourses(user);
-        }
+        } 
         return user.subscribedCourses;
     }
 
@@ -83,6 +83,7 @@ export class UserResolver implements ResolverInterface<User> {
         if (ctx.session) {
             ctx.session.userId = user.userId;
         }
+        
         return user;
     }
   
