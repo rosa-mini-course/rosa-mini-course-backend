@@ -1,5 +1,6 @@
 import { Authorized, FieldResolver, Resolver, Mutation, ResolverInterface, Ctx, Arg, UseMiddleware, InputType, ObjectType, Field } from "type-graphql";
 import { Service } from "typedi";
+import { getManager } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { AppUserContext } from "../../context";
 import { Course, User } from "../../entity";
@@ -30,15 +31,12 @@ export class SubscriptionResolver {
     )
     @Mutation(() => UserCourse)
     async subscribeCourse(@Ctx() ctx: AppUserContext, @Arg("courseId") _courseId: string): Promise<UserCourse> {
-        const user = ctx.getSessionUser() as User;
-        const course = ctx.state.course as Course;
-        const userId = user.userId;
-        const courseId = course.courseId;
-        user.subscribedCourses?.push(course);
-        course.subscribers?.push(user);
-        this.userRepository.save(user);
-        this.courseRepository.save(course);
-        return { userId, courseId } as UserCourse;
+        let user = ctx.getSessionUser() as User;
+        const courseToSubscribe = ctx.state.course as Course;
+        user = await getManager().findOneOrFail(User, { where: { userId: user.userId }, relations: ["subscribedCourses"] });
+        user.subscribedCourses!.push(courseToSubscribe);
+        await getManager().save(user);
+        return { userId: user.userId, courseId: courseToSubscribe.courseId } as UserCourse;
     }
 
     @Authorized()
@@ -47,18 +45,13 @@ export class SubscriptionResolver {
     )
     @Mutation(() => UserCourse)
     async unsubscribeCourse(@Ctx() ctx: AppUserContext, @Arg("courseId") _courseId: string): Promise<UserCourse> {
-        const user = ctx.getSessionUser() as User;
-        const course = ctx.state.course as Course;
-        const userId = user.userId;
-        const courseId = course.courseId;
-        user.subscribedCourses = user.subscribedCourses?.filter(subscribeCourse => {
-            subscribeCourse.courseId !== course.courseId; 
+        let user = ctx.getSessionUser() as User;
+        const courseToUnsubscribe = ctx.state.course as Course;
+        user = await getManager().findOneOrFail(User, { where: { userId: user.userId }, relations: ["subscribedCourses"] });
+        user.subscribedCourses = user.subscribedCourses!.filter(subscribeCourse => {
+            return subscribeCourse.courseId !== courseToUnsubscribe.courseId; 
         });
-        course.subscribers = course.subscribers?.filter(subcriber => {
-            subcriber.userId !== user.userId;
-        });
-        await this.userRepository.save(user);
-        await this.courseRepository.save(course);
-        return { userId, courseId } as UserCourse;
+        await getManager().save(user)
+        return { userId: user.userId, courseId: courseToUnsubscribe.courseId } as UserCourse;
     }
 }
