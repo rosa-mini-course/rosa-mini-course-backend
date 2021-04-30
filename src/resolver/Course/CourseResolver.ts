@@ -1,4 +1,4 @@
-import { Arg, Authorized, Ctx, FieldResolver, ID, Mutation, Query, Resolver, ResolverInterface, Root, UseMiddleware } from "type-graphql";
+import { Arg, Authorized, Ctx, Field, FieldResolver, ID, Mutation, ObjectType, Query, Resolver, ResolverInterface, Root, UseMiddleware } from "type-graphql";
 import { Inject, Service } from "typedi";
 import { InjectManager, InjectRepository } from "typeorm-typedi-extensions";
 import { Course, Video } from "../../entity";
@@ -9,6 +9,13 @@ import { ContextCourseAccessible, LoadCourseIntoContext } from "./CourseGuard";
 import { AddCourseInput, UpdateCourseInput } from "../../type/Course";
 import { EntityManager, getConnection, getManager, In, Not } from "typeorm";
 import c from "config";
+
+
+@ObjectType()
+class CourseId {
+    @Field()
+    courseId!: string;
+}
 
 
 @Service()
@@ -70,10 +77,12 @@ export class CourseResolver implements ResolverInterface<Course> {
         LoadCourseIntoContext({ argKey: "courseId", ctxKey: "course" }),
         ContextCourseAccessible({ ctxKey: "course" })
     )
-    async removeTeachingCourse(@Ctx() ctx: AppUserContext, @Arg("courseId", () => ID) _courseId: string): Promise<string> {
-        const course = ctx.state.course as Course;
-        const courseId = course.courseId;
+    @Mutation(() => CourseId)
+    async removeTeachingCourse(@Ctx() ctx: AppUserContext, @Arg("courseId", () => ID) _courseId: string): Promise<CourseId> {
+        let course = ctx.state.course as Course;
+        const courseId = course.courseId
+        course = await getManager().findOneOrFail(Course, { where: { courseId: course.courseId}, relations: ["lecturer"] });
         await this.courseRepository.remove(course);
-        return courseId;
+        return { courseId: courseId } as CourseId;
     }
 }

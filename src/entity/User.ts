@@ -37,7 +37,9 @@ export class User {
     uploadedVideos?: Video[];
 
     @Field(() => [Course])
-    @ManyToMany(() => Course, course => course.subscribers)
+    @ManyToMany(() => Course, course => course.subscribers, {
+        cascade: true
+    })
     @JoinTable()
     subscribedCourses?: Course[];
 
