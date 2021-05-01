@@ -78,7 +78,7 @@ export class CourseResolver implements ResolverInterface<Course> {
         ContextCourseAccessible({ ctxKey: "course" })
     )
     @Mutation(() => CourseId)
-    async removeTeachingCourse(@Ctx() ctx: AppUserContext, @Arg("courseId", () => ID) _courseId: string): Promise<CourseId> {
+    async removeTeachingCourse(@Ctx() ctx: AppUserContext, @Arg("courseId") _courseId: string): Promise<CourseId> {
         let course = ctx.state.course as Course;
         const courseId = course.courseId
         course = await getManager().findOneOrFail(Course, { where: { courseId: course.courseId}, relations: ["lecturer"] });
