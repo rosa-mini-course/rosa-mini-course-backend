@@ -19,6 +19,7 @@ import {
 import { AppUserContextMiddleware } from "./auth/AppUserContextMiddleware";
 import { authChecker } from "./auth/AuthChecker";
 import { exitCodes } from "./const/exitCodes";
+import { videoRouter } from "./router"
 
 
 export async function setupRedis(): Promise<Redis> {
@@ -82,6 +83,8 @@ export async function setupKoa(redis: Redis, server: ApolloServer): Promise<Koa>
     app.use(AppUserContextMiddleware);
     app.use(CompressMiddleware());
     app.use(server.getMiddleware());
+
+    app.use(videoRouter.routes()).use(videoRouter.allowedMethods())
 
     setupUserContext(app);
 
