@@ -40,50 +40,52 @@ export class VideoResolver implements ResolverInterface<Video> {
         return video.belongToCourse;
     }
 
-    // 参考教程 https://www.youtube.com/watch?v=s35EmAn9Zl8
-    @Authorized()
-    @UseMiddleware(
-        LoadCourseIntoContext({ argKey: "courseId", ctxKey: "course"}),
-        ContextCourseAccessible({ ctxKey: "course" })
-    )
-    @Mutation(() => Video)
-    async uploadVideo(
-        @Ctx() ctx: AppUserContext, 
-        @Arg("courseId") _courseId: string,
-        @Arg("data") data: UploadVideoInput,
-        @Arg("videofile", () => GraphQLUpload) { createReadStream, filename }: UploadVideoInterface
-    ): Promise<Video> {
-        const locationToSave: string = __dirname + `/../../../videofiles/${filename}`;
-        const isUploadSuccess: Promise<boolean> = new Promise<boolean>(async (resolve, reject) => 
-            createReadStream()
-                .pipe(createWriteStream(locationToSave))
-                .on("finish", () => resolve(true))
-                .on("error", () => reject(false))
-        );
-        if (!isUploadSuccess) throw new ApolloError("Video 文件上传失败");
-        const user = ctx.getSessionUser();
-        const course = ctx.state.course as Course;
-        const video = this.videoRepository.create({ uploader: user, belongToCourse: course, location: locationToSave, ...data})
-        return await this.videoRepository.save(video);
-    }
+//     // 参考教程 https://www.youtube.com/watch?v=s35EmAn9Zl8
+//     @Authorized()
+//     @UseMiddleware(
+//         LoadCourseIntoContext({ argKey: "courseId", ctxKey: "course"}),
+//         ContextCourseAccessible({ ctxKey: "course" })
+//     )
+//     @Mutation(() => Video)
+//     async uploadVideo(
+//         @Ctx() ctx: AppUserContext, 
+//         @Arg("courseId") _courseId: string,
+// /*      /*   @Arg("data") data: UploadVideoInput, */
+//         @Arg("videofile", () => GraphQLUpload) { createReadStream, filename }: UploadVideoInterface
+//     ): Promise<Video> {
+//         const locationToSave: string = path.join(path.resolve(__dirname, '../..'), "VideoFiles");
+//         const isUploadSuccess: Promise<boolean> = new Promise<boolean>(async (resolve, reject) => 
+//             createReadStream()
+//                 .pipe(createWriteStream(locationToSave))
+//                 .on("finish", () => resolve(true))
+//                 .on("error", () => reject(false))
+//         );
+//         if (!isUploadSuccess) throw new ApolloError("Video 文件上传失败");
+//         let user = ctx.getSessionUser();
+//         user = await getManager().findOneOrFail(User, { where: { userId: user?.userId }, relations: ["uploadedVideos"] });
+//         let course = ctx.state.course as Course;
+//         course = await getManager().findOneOrFail(Course, { where: { courseId: course.courseId }, relations: ["videos"]});
+//         const video = this.videoRepository.create({ title: filename, uploader: user, belongToCourse: course, location: locationToSave });
+//         return await this.videoRepository.save(video);
+//     }
 
-    // TODO 播放视频
-    @Authorized()
-    @UseMiddleware(
-        LoadVideoIntoContext({ argKey: "videoId", ctxKey: "video"}),
-        ContextVideoAccessible({ ctxKey: "video" })
-    )
-    @Mutation(() => Video)
-    async displayVideo(
-        @Ctx() ctx: AppUserContext,
-        @Arg("videoId") videoId: string
-    ) {
-        if (getCustomRepository(VideoRepository).findById(videoId) === undefined) {
-            throw new ApolloError("视频ID有误");
-        }
-        const video: Video = getCustomRepository(VideoRepository).findById(videoId) as unknown as Video;
-        const url = video.location;
-    }
+//     // TODO 播放视频
+//     @Authorized()
+//     @UseMiddleware(
+//         LoadVideoIntoContext({ argKey: "videoId", ctxKey: "video"}),
+//         ContextVideoAccessible({ ctxKey: "video" })
+//     )
+//     @Mutation(() => Video)
+//     async displayVideo(
+//         @Ctx() ctx: AppUserContext,
+//         @Arg("videoId") videoId: string
+//     ) {
+//         if (getCustomRepository(VideoRepository).findById(videoId) === undefined) {
+//             throw new ApolloError("视频ID有误");
+//         }
+//         const video: Video = getCustomRepository(VideoRepository).findById(videoId) as unknown as Video;
+//         const url = video.location;
+//     }
 
 
 

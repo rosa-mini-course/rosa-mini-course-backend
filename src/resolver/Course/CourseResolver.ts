@@ -8,7 +8,6 @@ import { AppUserContext } from "../../context";
 import { ContextCourseAccessible, LoadCourseIntoContext } from "./CourseGuard";
 import { AddCourseInput, UpdateCourseInput } from "../../type/Course";
 import { EntityManager, getConnection, getManager, In, Not } from "typeorm";
-import c from "config";
 
 
 @ObjectType()
@@ -36,6 +35,17 @@ export class CourseResolver implements ResolverInterface<Course> {
     async videos(@Root() course: Course): Promise<Video[]> {
         return this.courseRepository.loadVideos(course);
     }
+
+    @UseMiddleware(
+        LoadCourseIntoContext({ argKey: "courseId", ctxKey: "course" }),
+    )
+    @Query(() => [Video])
+    async loadVideos(@Ctx() ctx: AppUserContext, @Arg("courseId") _courseId: string): Promise<Video[] | undefined> {
+        let course = ctx.state.course as Course;
+        course = await getManager().findOneOrFail(Course, { where: { courseId: course.courseId}, relations: ["videos"] });
+        return course.videos;
+    }
+
 
     @Query(() => [Course])
     async discoveryCourses(

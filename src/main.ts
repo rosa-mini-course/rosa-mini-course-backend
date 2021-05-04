@@ -20,6 +20,7 @@ import { AppUserContextMiddleware } from "./auth/AppUserContextMiddleware";
 import { authChecker } from "./auth/AuthChecker";
 import { exitCodes } from "./const/exitCodes";
 import { videoRouter } from "./router"
+import bodyParser from "koa-bodyparser";
 
 
 export async function setupRedis(): Promise<Redis> {
@@ -60,6 +61,7 @@ export async function setupApolloServer(schema: GraphQLSchema): Promise<ApolloSe
     const server = new ApolloServer({
         schema,
         playground: true,
+        uploads: false,
         context: ({ ctx }) => ctx
     });
     return server;
@@ -82,6 +84,7 @@ export async function setupKoa(redis: Redis, server: ApolloServer): Promise<Koa>
     }, app));
     app.use(AppUserContextMiddleware);
     app.use(CompressMiddleware());
+    app.use(bodyParser());
     app.use(server.getMiddleware());
 
     app.use(videoRouter.routes()).use(videoRouter.allowedMethods())
