@@ -4,6 +4,8 @@ import { VideoRepository } from "../repository/VideoRepository";
 import { Video } from "../entity/Video";
 import { User } from "../entity/User";
 import { CourseService } from "./CourseService";
+import { getManager } from "typeorm";
+import { Course } from "../entity";
 
 @Service()
 export class VideoService {
@@ -14,7 +16,8 @@ export class VideoService {
     private readonly courseService!: CourseService;
 
     async accessibleBy(video: Video, user: User) {
-        const course = video.belongToCourse;
+        let course = video.belongToCourse;
+        course = await getManager().findOneOrFail(Course, { where: { courseId: course.courseId }, relations: ["lecturer"]})
         const lecture = course.lecturer;
         if (lecture.userId === user.userId) {
             return true;

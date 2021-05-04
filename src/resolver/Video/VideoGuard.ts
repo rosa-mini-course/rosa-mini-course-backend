@@ -1,7 +1,7 @@
 import { ApolloError } from "apollo-server-errors";
 import { MiddlewareFn, ResolverData, NextFn } from "type-graphql";
 import Container from "typedi";
-import { getCustomRepository } from "typeorm";
+import { getCustomRepository, getManager } from "typeorm";
 import { runInNewContext } from "vm";
 import { AppContext, AppUserContext } from "../../context";
 import { User, Video } from "../../entity";
@@ -29,7 +29,9 @@ export function LoadVideoIntoContext({ argKey = "videoId", ctxKey = "video" }: V
 export function ContextVideoAccessible({ ctxKey = "video" }: Omit<VideoGuardArgs, "argKey">): MiddlewareFn<AppUserContext> {
     return async ({ context }: ResolverData<AppUserContext>, next: NextFn) => {
         const user = context.getSessionUser() as User;
-        const video = context.state[ctxKey] as Video;
+        // user = await getManager().findOneOrFail(User, { where: { userId: user.userId }, relations: [] })
+        let video = context.state[ctxKey] as Video;
+        video = await getManager().findOneOrFail(Video, { where: { videoId: video.videoId }, relations: ["uploader", "belongToCourse"]})
         if (!(await Container.get(VideoService).accessibleBy(video, user))) {
             throw new ApolloError("Video 无法访问。");
         }

@@ -13,7 +13,16 @@ import { UploadVideoInterface } from "../../type";
 import { ApolloError } from "apollo-server-errors";
 import { UploadVideoInput } from "../../type/Video/UploadVideoInput";
 import { ContextVideoAccessible, LoadVideoIntoContext } from "./VideoGuard";
-import { getCustomRepository } from "typeorm";
+import { getCustomRepository, getManager } from "typeorm";
+import path from "path";
+import { ObjectType, Field } from "type-graphql"
+
+@ObjectType()
+class VideoId {
+    @Field()
+    videoId!: string;
+}
+
 
 @Service()
 @Resolver(() => Video)
@@ -94,11 +103,12 @@ export class VideoResolver implements ResolverInterface<Video> {
         LoadVideoIntoContext({ argKey: "videoId", ctxKey: "video"}),
         ContextVideoAccessible({ ctxKey: "video" })
     )
-    @Mutation(() => ID, { nullable: true })
-    async removeVideo(@Ctx() ctx: AppUserContext, @Arg("videoId", () => ID) _videoId: string): Promise<string> {
-        const video = ctx.state.video as Video;
+    @Mutation(() => VideoId, { nullable: true })
+    async removeVideo(@Ctx() ctx: AppUserContext, @Arg("videoId") _videoId: string): Promise<VideoId> {
+        let video = ctx.state.video as Video;
         const videoId = video.videoId;
+        video = await getManager().findOneOrFail(Video, { where: { videoId: video.videoId }, relations: ["uploader", "belongToCourse"] });
         await this.videoRepository.remove(video);
-        return videoId;
+        return { videoId } as VideoId;
     }
 }
