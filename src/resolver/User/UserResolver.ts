@@ -63,9 +63,27 @@ export class UserResolver implements ResolverInterface<User> {
         @Arg("email") email: string,
         @Arg("password") password: string,
         @Arg("role") role: string,
-        @Arg("invitationCode") invitationCode: string
+        @Arg("invitationCode") invitationCode: string,
+        @Ctx() ctx: AppContext
     ): Promise<User | undefined> {
-        return this.userService.registerUser(email, password, role, invitationCode);
+        
+        // 检查邮箱是否已被注册
+        if (this.existEmail(email)) {
+            throw new ApolloError("邮箱已被注册");
+        }
+
+        // 注册
+        this.userService.registerUser(email, password, role, invitationCode);
+
+        // 登录
+        const user = await this.userRepository.findOneOrFail({ useremail: email });
+        if (!(await this.userService.matchPassword(user, password))) {
+            throw new ApolloError("邮箱或密码错误。", "WRONG_EMAIL_ADDRESS_OR_PASSWORD");
+        }
+        if (ctx.session) {
+            ctx.session.userId = user.userId;
+        }
+        return user;
     }
   
     @Mutation(() => User, { nullable: true })
@@ -73,7 +91,7 @@ export class UserResolver implements ResolverInterface<User> {
         @Arg("email") useremail: string, 
         @Arg("password") password: string, 
         @Ctx() ctx: AppContext
-    ): Promise<User | null> {
+    ): Promise<User | undefined> {
         const user = await this.userRepository.findOneOrFail({ useremail });
     
         if (!(await this.userService.matchPassword(user, password))) {

@@ -8,6 +8,7 @@ import { AppUserContext } from "../../context";
 import { ContextCourseAccessible, LoadCourseIntoContext } from "./CourseGuard";
 import { AddCourseInput, UpdateCourseInput } from "../../type/Course";
 import { EntityManager, getConnection, getManager, In, Not } from "typeorm";
+import { ApolloError } from "apollo-server-errors";
 
 
 @ObjectType()
@@ -91,7 +92,10 @@ export class CourseResolver implements ResolverInterface<Course> {
     async removeTeachingCourse(@Ctx() ctx: AppUserContext, @Arg("courseId") _courseId: string): Promise<CourseId> {
         let course = ctx.state.course as Course;
         const courseId = course.courseId
-        course = await getManager().findOneOrFail(Course, { where: { courseId: course.courseId}, relations: ["lecturer"] });
+        course = await getManager().findOneOrFail(Course, { where: { courseId: course.courseId}, relations: ["lecturer", "videos"] });
+        if (course.videos?.length !== 0) {
+            throw new ApolloError("该课程含有资源文件，请先删除资源文件");
+        }
         await this.courseRepository.remove(course);
         return { courseId: courseId } as CourseId;
     }

@@ -28,7 +28,7 @@ export class UserService {
             memoryCost: 65536,
             hashLength: 64,
         });
-        const user = await this.userRepository.save(await this.userRepository.create({
+        const user = await this.userRepository.save(this.userRepository.create({
             useremail: email,
             passwordHash,
             role,

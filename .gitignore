@@ -5,3 +5,4 @@ coverage
 yarn-error.log
 config/local.yml
 VideoFiles
+uml_diagram
